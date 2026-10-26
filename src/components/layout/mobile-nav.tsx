@@ -224,7 +224,7 @@ export function MobileNav() {
                     <MenuLink
                       href={item.href}
                       label={item.label}
-                      indent={"indent" in item && item.indent}
+                      indent={item.indent}
                       active={itemActive(item.href, pathname, hash)}
                       onNavigate={close}
                     />

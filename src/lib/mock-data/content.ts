@@ -98,13 +98,17 @@ export const mobileMenuPrimary = [
   { label: "Biz Kimiz?", href: "/biz-kimiz" },
 ] as const;
 
-export const mobileMenuDiscover = [
+export const mobileMenuDiscover: readonly {
+  label: string;
+  href: string;
+  indent?: boolean;
+}[] = [
   { label: "Aracınıza ne yapıyoruz?", href: "/#hizmetler" },
   { label: "İşçilik", href: "/#hikayemiz" },
   { label: "Garanti & Takip", href: "/#garanti-takip" },
   { label: "İletişim", href: "/iletisim" },
   { label: "Müşteri yorumları", href: "/#yorumlar" },
-] as const;
+];
 
 export const carBrands = [
   "Mercedes-Benz",
