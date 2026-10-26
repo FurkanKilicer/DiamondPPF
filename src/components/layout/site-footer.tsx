@@ -3,10 +3,18 @@ import { BrandLogo } from "@/components/layout/brand-logo";
 import { Icon } from "@/components/ui/icon";
 import { site } from "@/lib/mock-data/content";
 
+const footerLinks = [
+  { href: "/#garanti-takip", label: "Garanti Şartları" },
+  { href: "/ornek-araclar", label: "Örnek Araçlar" },
+  { href: "/ppf-nedir", label: "PPF Nedir?" },
+  { href: "/biz-kimiz", label: "Biz Kimiz?" },
+  { href: "/iletisim", label: "İletişim" },
+] as const;
+
 export function SiteFooter() {
   return (
     <footer className="w-full bg-surface-card" style={{ viewTransitionName: "site-footer" }}>
-      <div className="page-pad page-shell pt-24 pb-16">
+      <div className="page-pad page-shell pt-10 pb-10 md:pt-24 md:pb-16">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
             <BrandLogo />
@@ -56,15 +64,22 @@ export function SiteFooter() {
             </div>
           </div>
         </div>
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-border-subtle pt-6 text-[13px] text-text-muted md:flex-row">
-          <p>© 2026 Diamond PPF. Tüm hakları saklıdır.</p>
-          <div className="flex gap-6 text-text-secondary">
-            <Link href="/#garanti-takip">Garanti Şartları</Link>
-            <Link href="/ornek-araclar">Örnek Araçlar</Link>
-            <Link href="/ppf-nedir">PPF Nedir?</Link>
-            <Link href="/biz-kimiz">Biz Kimiz?</Link>
-            <Link href="/iletisim">İletişim</Link>
-          </div>
+        <div className="mt-10 flex flex-col items-center gap-5 border-t border-border-subtle pt-6 text-[13px] text-text-muted md:mt-16 md:flex-row md:items-center md:justify-between">
+          <p className="text-center md:text-left">© 2026 Diamond PPF. Tüm hakları saklıdır.</p>
+          <nav
+            aria-label="Alt bağlantılar"
+            className="flex w-full flex-wrap justify-center gap-2 md:w-auto md:justify-end md:gap-x-1 md:gap-y-2"
+          >
+            {footerLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="whitespace-nowrap rounded-full border border-white/10 bg-surface-elevated/60 px-3.5 py-2 text-text-secondary hover:border-white/20 hover:text-text-primary md:border-0 md:bg-transparent md:px-2.5 md:py-1"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </div>
     </footer>
