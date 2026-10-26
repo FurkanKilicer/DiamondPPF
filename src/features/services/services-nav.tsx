@@ -65,7 +65,7 @@ export function ServicesNav() {
   }
 
   return (
-    <nav aria-label="Hizmet kategorileri" className="sticky top-12 z-40 w-full md:top-[3.75rem]">
+    <nav aria-label="Hizmet kategorileri" className="sticky top-14 z-40 w-full sm:top-12 md:top-[3.75rem]">
       <div className="page-pad py-2">
         <div className="page-shell">
           <div className="overflow-x-auto rounded-2xl border border-white/10 bg-surface-canvas/85 px-2 shadow-[0_10px_40px_rgba(0,0,0,0.4)] backdrop-blur-md md:rounded-full md:px-3">

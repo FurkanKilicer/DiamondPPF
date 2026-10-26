@@ -279,7 +279,7 @@ export function MobileNav() {
         type="button"
         aria-label={open ? "Menüyü kapat" : "Menüyü aç"}
         aria-expanded={open}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-surface-card text-text-primary xl:hidden"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-surface-card text-text-primary sm:h-9 sm:w-9 xl:hidden"
         onClick={toggle}
       >
         <Icon name={open || rendered ? "close" : "menu"} className="text-[22px]" />

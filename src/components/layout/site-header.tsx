@@ -9,25 +9,9 @@ import { Icon } from "@/components/ui/icon";
 import { navItems, site } from "@/lib/mock-data/content";
 import { cn } from "@/lib/utils/cn";
 
-const sectionIds = [
-  "teklif-bolumu",
-  "hizmetler",
-  "garanti-takip",
-  "ultimate-ppf",
-  "test-lab",
-  "ornek-araclar",
-  "hikayemiz",
-  "biz-kimiz",
-];
-
-function navKey(href: string) {
-  return href.startsWith("/#") ? href.slice(1) : href;
-}
-
 export function SiteHeader() {
   const pathname = usePathname();
   const [compact, setCompact] = useState(false);
-  const [activeHref, setActiveHref] = useState("/");
 
   useEffect(() => {
     let ticking = false;
@@ -35,7 +19,6 @@ export function SiteHeader() {
     function apply(y: number) {
       const nextCompact = y > 36;
       setCompact((prev) => (prev === nextCompact ? prev : nextCompact));
-      if (y < 160) setActiveHref((prev) => (prev === "/" ? prev : "/"));
     }
 
     function onScroll() {
@@ -52,53 +35,25 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    const nodes = sectionIds
-      .map((id) => document.getElementById(id))
-      .filter((node): node is HTMLElement => Boolean(node));
-    if (nodes.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (!visible?.target.id) return;
-        const next = `#${visible.target.id}`;
-        setActiveHref((prev) => (prev === next ? prev : next));
-      },
-      { rootMargin: "-20% 0px -55% 0px", threshold: [0.15, 0.35, 0.6] },
-    );
-
-    for (const node of nodes) observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
-
   function isActive(href: string) {
-    if (href === "/biz-kimiz") return pathname === "/biz-kimiz";
-    if (href === "/iletisim") return pathname === "/iletisim";
-    if (href === "/ppf-nedir") return pathname === "/ppf-nedir";
-    if (href === "/ornek-araclar") return pathname === "/ornek-araclar";
-    if (href === "/hizmetler") return pathname === "/hizmetler";
-    if (pathname !== "/") return false;
-    return activeHref === navKey(href);
+    return pathname === href;
   }
 
   return (
     <header
-      className="pointer-events-none fixed inset-x-0 top-0 z-50 overflow-x-hidden"
+      className="pointer-events-none fixed inset-x-0 top-0 z-50"
       style={{ viewTransitionName: "site-header" }}
     >
-      <div className={cn("page-pad w-full max-w-full", compact && "md:pt-3")}>
+      <div className={cn("w-full min-w-0", compact && "md:px-4 md:pt-3")}>
       <div
         className={cn(
-          "site-header-shell page-shell pointer-events-auto relative flex min-w-0 items-center justify-between",
+          "site-header-shell page-shell pointer-events-auto relative flex min-w-0 items-center justify-between gap-3 px-4 sm:px-5 lg:px-8",
           compact
-            ? "h-12 gap-2 border border-white/10 bg-surface-canvas/85 px-0 shadow-[0_10px_40px_rgba(0,0,0,0.4)] backdrop-blur-md md:gap-3 md:rounded-full md:px-4 lg:px-5"
-            : "h-16 gap-3 rounded-none border border-transparent bg-transparent px-0 md:h-20 md:gap-4",
+            ? "h-14 border border-transparent bg-surface-canvas/90 shadow-[0_10px_40px_rgba(0,0,0,0.4)] backdrop-blur-md sm:h-12 md:rounded-full md:border-white/10 md:px-5"
+            : "h-16 border border-transparent bg-surface-canvas/80 backdrop-blur-md md:h-20 md:bg-transparent md:backdrop-blur-none",
         )}
       >
-        <Link href="/" aria-label="Diamond PPF" className="header-enter group flex shrink-0 items-center">
+        <Link href="/" aria-label="Diamond PPF" className="header-enter group flex min-w-0 shrink items-center">
           <BrandLogo compact={compact} priority />
         </Link>
         <nav
@@ -126,7 +81,7 @@ export function SiteHeader() {
         </nav>
         <div
           className={cn(
-            "header-enter flex min-w-0 shrink-0 items-center gap-2.5 md:gap-3",
+            "header-enter flex shrink-0 items-center gap-2 sm:gap-3",
           )}
           style={{ animationDelay: "380ms" }}
         >
@@ -146,7 +101,7 @@ export function SiteHeader() {
             className={cn(
               "cta-red inline-flex shrink-0 items-center justify-center font-display font-bold tracking-wider uppercase",
               compact
-                ? "h-8 w-8 rounded-full md:h-auto md:w-auto md:gap-1 md:px-3 md:py-1.5 md:text-[10px]"
+                ? "h-9 w-9 rounded-full sm:h-8 sm:w-8 md:h-auto md:w-auto md:gap-1 md:px-3 md:py-1.5 md:text-[10px]"
                 : "cta-red-pulse h-10 w-10 rounded-full md:h-auto md:w-auto md:gap-2 md:rounded md:px-5 md:py-2.5 md:text-[11px]",
             )}
           >

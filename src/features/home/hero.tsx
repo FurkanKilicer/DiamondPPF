@@ -76,7 +76,26 @@ const slides = [
 
 export function Hero() {
   const [active, setActive] = useState(0);
+  const [shortViewport, setShortViewport] = useState(false);
+  const [tightViewport, setTightViewport] = useState(false);
   const slide = slides[active];
+
+  useEffect(() => {
+    function applyHeight() {
+      const desktop = window.matchMedia("(min-width: 1024px)").matches;
+      const height = window.visualViewport?.height ?? window.innerHeight;
+      setShortViewport(!desktop && height < 800);
+      setTightViewport(!desktop && height < 700);
+    }
+
+    applyHeight();
+    window.visualViewport?.addEventListener("resize", applyHeight);
+    window.addEventListener("resize", applyHeight);
+    return () => {
+      window.visualViewport?.removeEventListener("resize", applyHeight);
+      window.removeEventListener("resize", applyHeight);
+    };
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -89,10 +108,15 @@ export function Hero() {
   }, [active]);
 
   return (
-    <section className="page-pad relative w-full overflow-hidden bg-surface-canvas pt-4 pb-10 md:pt-10 md:pb-16 lg:pt-16 lg:pb-24">
+    <section className="page-pad relative flex w-full flex-col overflow-hidden bg-surface-canvas pt-4 pb-4 max-lg:h-[calc(100dvh-4.5rem)] md:pt-10 md:pb-16 lg:h-auto lg:overflow-visible lg:pt-16 lg:pb-24">
       <div className="pointer-events-none absolute -top-40 -right-40 h-96 w-96 rounded-full bg-primary-container/10 blur-[130px]" />
       <div className="pointer-events-none absolute top-1/2 -left-48 h-80 w-80 rounded-full bg-brand-magenta/10 blur-[120px]" />
-      <div className="page-shell relative flex flex-col gap-6 md:gap-10 lg:gap-16">
+      <div
+        className={cn(
+          "page-shell relative flex min-h-0 flex-1 flex-col",
+          shortViewport ? "gap-3" : "gap-5 md:gap-10 lg:gap-16",
+        )}
+      >
         <Reveal variant="fade">
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
             <div className="label-caps inline-flex max-w-full items-center gap-2 rounded bg-surface-elevated px-2.5 py-1 text-primary-container sm:px-3">
@@ -106,8 +130,14 @@ export function Hero() {
             </div>
           </div>
         </Reveal>
-        <div id="hero-stage" className="grid grid-cols-1 items-center gap-5 md:gap-8 lg:grid-cols-12">
-          <div className="flex flex-col gap-4 md:gap-6 lg:col-span-7">
+        <div
+          id="hero-stage"
+          className={cn(
+            "grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(7rem,1fr)] lg:grid-cols-12 lg:grid-rows-none lg:items-center",
+            shortViewport ? "gap-3" : "gap-5 md:gap-8",
+          )}
+        >
+          <div className="flex flex-col gap-3 md:gap-6 lg:col-span-7">
             <div key={slide.n} className="space-y-2 md:space-y-3">
               <span className="block font-display text-[11px] font-semibold tracking-widest text-primary-container uppercase md:text-sm">
                 <WordReveal text={slide.kicker} stepMs={40} />
@@ -126,7 +156,13 @@ export function Hero() {
                 />
               </h1>
             </div>
-            <p key={`${slide.n}-copy`} className="max-w-xl text-[15px] leading-6 text-text-secondary md:text-lg md:leading-7">
+            <p
+              key={`${slide.n}-copy`}
+              className={cn(
+                "max-w-xl text-[15px] leading-6 text-text-secondary md:text-lg md:leading-7",
+                tightViewport && "line-clamp-2",
+              )}
+            >
               <WordReveal
                 text={slide.copy}
                 delayMs={80 + (wordCount(slide.heading) + wordCount(slide.accent)) * 50}
@@ -156,8 +192,8 @@ export function Hero() {
               </VideoTrigger>
             </div>
           </div>
-          <Reveal variant="right" delayMs={120} className="relative lg:col-span-5">
-            <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-surface-card shadow-2xl md:aspect-[4/3]">
+          <Reveal variant="right" delayMs={120} className="relative h-full min-h-0 lg:col-span-5 lg:h-auto">
+            <div className="relative h-full min-h-[7rem] overflow-hidden rounded-xl bg-surface-card shadow-2xl lg:aspect-[4/3] lg:h-auto">
               {slides.map((item, index) => (
                 <Image
                   key={item.n}
@@ -182,7 +218,10 @@ export function Hero() {
               </div>
               <div
                 key={`${slide.n}-caption`}
-                className="hero-copy-enter absolute right-2.5 bottom-2.5 left-2.5 flex items-center justify-between gap-2 rounded bg-surface-card/90 px-3 py-2.5 backdrop-blur-md md:right-4 md:bottom-4 md:left-4 md:p-4"
+                className={cn(
+                  "hero-copy-enter absolute right-2.5 bottom-2.5 left-2.5 flex items-center justify-between gap-2 rounded bg-surface-card/90 px-3 py-2.5 backdrop-blur-md md:right-4 md:bottom-4 md:left-4 md:p-4",
+                  tightViewport && "max-lg:hidden",
+                )}
               >
                 <div className="min-w-0">
                   <p className="label-caps tracking-wider text-primary-container">{slide.captionKicker}</p>
@@ -195,32 +234,47 @@ export function Hero() {
             </div>
           </Reveal>
         </div>
-        <div className="grid grid-cols-2 gap-2 pt-2 md:grid-cols-4 md:gap-3 md:pt-6" role="tablist" aria-label="Hero slaytları">
+        <div
+          className={cn(
+            "flex flex-row gap-2 md:grid md:grid-cols-4 md:gap-3 md:pt-6",
+            shortViewport && "max-lg:hidden",
+          )}
+          role="tablist"
+          aria-label="Hero slaytları"
+        >
           {slides.map((item, index) => {
             const selected = index === active;
             return (
-              <Reveal key={item.n} variant="up" delayMs={index * 80}>
+              <Reveal key={item.n} variant="up" delayMs={index * 80} className="min-w-0 flex-1">
                 <button
                   type="button"
                   role="tab"
                   aria-selected={selected}
                   aria-controls="hero-stage"
+                  aria-label={`${item.n} ${item.title}`}
                   className={cn(
-                    "group relative flex h-full w-full flex-col gap-0.5 overflow-hidden rounded bg-surface-card p-2.5 text-left hover:bg-surface-elevated md:gap-1 md:p-4",
+                    "group relative flex h-11 w-full flex-col items-center justify-center overflow-hidden rounded bg-surface-card hover:bg-surface-elevated md:h-full md:items-start md:gap-1 md:p-4 md:text-left",
                     selected && "bg-surface-elevated",
                   )}
                   onClick={() => setActive(index)}
                 >
-                  <span className="font-mono text-[10px] tracking-widest text-primary-container md:text-[11px]">{item.n}</span>
                   <span
                     className={cn(
-                      "font-display text-[13px] font-semibold leading-tight md:text-base",
+                      "font-mono text-sm tracking-widest md:text-[11px]",
+                      selected ? "text-primary-container" : "text-text-secondary md:text-primary-container",
+                    )}
+                  >
+                    {item.n}
+                  </span>
+                  <span
+                    className={cn(
+                      "hidden font-display font-semibold leading-tight md:inline md:text-base",
                       selected ? "text-primary-container" : "group-hover:text-primary-container",
                     )}
                   >
                     {item.title}
                   </span>
-                  <span className="text-[11px] leading-snug text-text-muted md:text-[13px]">{item.body}</span>
+                  <span className="hidden text-[13px] leading-snug text-text-muted md:inline">{item.body}</span>
                   <span className="absolute inset-x-0 bottom-0 h-0.5 bg-white/10" aria-hidden>
                     {selected ? (
                       <span

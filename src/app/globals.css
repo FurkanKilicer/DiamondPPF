@@ -46,9 +46,11 @@
   html {
     scroll-behavior: auto;
     color-scheme: dark;
+    overflow-x: clip;
   }
 
   body {
+    overflow-x: clip;
     background: var(--color-surface-canvas);
     color: var(--color-text-primary);
     font-family: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
@@ -217,7 +219,7 @@
   }
 
   .header-enter {
-    animation: header-rise 0.7s ease both;
+    animation: header-rise 0.55s ease both;
   }
 
   .site-header-shell {
@@ -278,11 +280,9 @@
   @keyframes header-rise {
     from {
       opacity: 0;
-      transform: translateY(-10px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 

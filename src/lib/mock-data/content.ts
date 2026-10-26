@@ -81,33 +81,28 @@ export function quoteWhatsAppHref(message: string) {
 
 export const navItems = [
   { label: "Hizmetler", href: "/hizmetler" },
-  { label: "Diamond PPF", href: "/#ultimate-ppf" },
-  { label: "Test Lab", href: "/#test-lab" },
+  { label: "PPF Nedir?", href: "/ppf-nedir" },
   { label: "Örnek Araçlar", href: "/ornek-araclar" },
+  { label: "Biz Kimiz?", href: "/biz-kimiz" },
 ] as const;
 
 export const moreNavItems = [
-  { label: "Biz Kimiz?", href: "/biz-kimiz" },
-  { label: "PPF Nedir?", href: "/ppf-nedir" },
-  { label: "Garanti & Takip", href: "/#garanti-takip" },
   { label: "İletişim", href: "/iletisim" },
 ] as const;
 
 export const mobileMenuPrimary = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Hizmetler", href: "/hizmetler" },
-  { label: "Diamond PPF", href: "/#ultimate-ppf" },
-  { label: "Test Lab", href: "/#test-lab" },
+  { label: "PPF Nedir?", href: "/ppf-nedir" },
   { label: "Örnek Araçlar", href: "/ornek-araclar" },
+  { label: "Biz Kimiz?", href: "/biz-kimiz" },
 ] as const;
 
 export const mobileMenuDiscover = [
   { label: "Aracınıza ne yapıyoruz?", href: "/#hizmetler" },
-  { label: "PPF Nedir?", href: "/ppf-nedir", indent: true },
   { label: "İşçilik", href: "/#hikayemiz" },
   { label: "Garanti & Takip", href: "/#garanti-takip" },
   { label: "İletişim", href: "/iletisim" },
-  { label: "Biz Kimiz?", href: "/biz-kimiz" },
   { label: "Müşteri yorumları", href: "/#yorumlar" },
 ] as const;
 

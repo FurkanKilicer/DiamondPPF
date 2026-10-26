@@ -13,7 +13,7 @@ import { VideoModalProvider } from "@/features/home/video-modal";
 export default function Home() {
   return (
     <VideoModalProvider>
-      <main className="w-full bg-surface-canvas pt-16 md:pt-20">
+      <main className="w-full bg-surface-canvas pt-[4.5rem] md:pt-20">
         <Hero />
         <StudioStats />
         <Craftsmanship />

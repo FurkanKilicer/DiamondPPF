@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { ChipSlider } from "@/components/ui/chip-slider";
 import { Icon } from "@/components/ui/icon";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { PageSection, SectionKicker } from "@/components/layout/page-section";
@@ -12,7 +13,6 @@ import {
   galleryWhatsAppHref,
   type GalleryBrand,
 } from "@/lib/mock-data/gallery";
-import { cn } from "@/lib/utils/cn";
 
 type Filter = (typeof galleryFilters)[number];
 
@@ -48,31 +48,20 @@ export function GalleryGrid() {
         </Reveal>
         <p className="text-[13px] text-text-muted">{items.length} gerçek referans</p>
       </div>
-      <div className="mb-8 flex flex-wrap gap-2" role="tablist" aria-label="Marka filtresi">
-        {galleryFilters.map((item) => {
-          const count =
-            item === "Tümü"
-              ? galleryVehicles.length
-              : galleryVehicles.filter((vehicle) => matches(item, vehicle.brand, vehicle.filter)).length;
-          const on = filter === item;
-          return (
-            <button
-              key={item}
-              type="button"
-              role="tab"
-              aria-selected={on}
-              className={cn(
-                "label-caps rounded-lg px-4 py-2.5 tracking-wider transition-colors",
-                on
-                  ? "cta-red font-bold"
-                  : "border border-white/10 bg-surface-card text-text-secondary hover:text-text-primary",
-              )}
-              onClick={() => setFilter(item)}
-            >
-              {item} ({count})
-            </button>
-          );
-        })}
+      <div className="mb-8">
+        <ChipSlider
+          items={galleryFilters}
+          value={filter}
+          onChange={setFilter}
+          tone="dark"
+          label={(item) => {
+            const count =
+              item === "Tümü"
+                ? galleryVehicles.length
+                : galleryVehicles.filter((vehicle) => matches(item, vehicle.brand, vehicle.filter)).length;
+            return `${item} (${count})`;
+          }}
+        />
       </div>
       {items.length === 0 ? (
         <p className="text-[15px] text-text-muted">Bu markada henüz arşiv kartı yok.</p>

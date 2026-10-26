@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { ChipSlider } from "@/components/ui/chip-slider";
 import { Icon } from "@/components/ui/icon";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { Reveal } from "@/components/ui/reveal";
-import { cn } from "@/lib/utils/cn";
+import { GalleryCardSlider } from "@/features/home/gallery-card-slider";
 
 const filters = ["Tümü", "Mercedes-Benz", "Togg", "BMW", "Audi", "Land Rover", "Tesla", "Diğer"] as const;
 
@@ -45,54 +45,11 @@ export function Gallery() {
           </Reveal>
         </div>
         <Reveal variant="fade">
-        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Marka filtresi">
-          {filters.map((item) => (
-            <button
-              key={item}
-              type="button"
-              role="tab"
-              aria-selected={filter === item}
-              className={cn(
-                "rounded px-4 py-2 font-display text-[11px] tracking-wider uppercase",
-                filter === item ? "cta-red font-bold" : "bg-white text-slate-500 hover:text-slate-900",
-              )}
-              onClick={() => setFilter(item)}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
+          <ChipSlider items={filters} value={filter} onChange={setFilter} />
         </Reveal>
-        <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((item, index) => (
-            <li key={item.title}>
-            <Reveal variant="up" delayMs={index * 90}>
-            <div className="card-light group flex h-full flex-col overflow-hidden rounded-xl">
-              <button
-                type="button"
-                className="relative aspect-[4/3] w-full overflow-hidden"
-                onClick={() => setLightbox(index)}
-                aria-label={`${item.brand} ${item.title} fotoğrafını büyüt`}
-              >
-                <Image src={item.src} alt={`${item.brand} ${item.title}`} fill className="object-cover transition duration-300 group-hover:scale-105" />
-                <span className="label-caps absolute top-3 left-3 rounded bg-surface-canvas/80 px-2 py-0.5 text-primary-container backdrop-blur">
-                  {item.tag}
-                </span>
-              </button>
-              <div className="flex items-center justify-between p-4">
-                <div>
-                  <span className="label-caps text-slate-500">{item.brand}</span>
-                  <h3 className="font-display text-base font-semibold text-slate-900">{item.title}</h3>
-                </div>
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-                  <Icon name="chevron_right" className="text-[18px]" />
-                </span>
-              </div>
-            </div>
-            </Reveal>
-            </li>
-          ))}
-        </ul>
+        <Reveal variant="up">
+          <GalleryCardSlider items={items} onOpen={setLightbox} />
+        </Reveal>
       </div>
       <ImageLightbox
         items={items.map((item) => ({

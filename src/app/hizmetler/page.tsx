@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function HizmetlerPage() {
   return (
-    <main className="min-h-screen w-full bg-surface-canvas pt-16 md:pt-20">
+    <main className="min-h-screen w-full bg-surface-canvas pt-[4.5rem] md:pt-20">
       <ServicesView />
     </main>
   );
