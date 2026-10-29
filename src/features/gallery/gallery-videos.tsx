@@ -3,9 +3,11 @@ import { Icon } from "@/components/ui/icon";
 import { PageSection, SectionKicker } from "@/components/layout/page-section";
 import { Reveal } from "@/components/ui/reveal";
 import { VideoTrigger } from "@/features/home/video-modal";
-import { galleryVideos } from "@/lib/mock-data/gallery";
+import type { PublicGalleryVideo } from "@/lib/cms/public-gallery";
 
-export function GalleryVideos() {
+export function GalleryVideos({ items }: { items: PublicGalleryVideo[] }) {
+  if (items.length === 0) return null;
+
   return (
     <PageSection id="videolar">
       <Reveal variant="fade" className="mb-10 max-w-3xl space-y-3">
@@ -16,8 +18,8 @@ export function GalleryVideos() {
         </p>
       </Reveal>
       <ul className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {galleryVideos.map((item, index) => (
-          <li key={item.title}>
+        {items.map((item, index) => (
+          <li key={item.id}>
             <Reveal variant="up" delayMs={index * 80}>
               <article className="overflow-hidden rounded-2xl border border-border-subtle bg-surface-card">
                 <VideoTrigger className="group relative block aspect-video w-full overflow-hidden">

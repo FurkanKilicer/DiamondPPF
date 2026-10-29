@@ -5,20 +5,22 @@ import { useMemo, useState } from "react";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { PageSection, SectionKicker } from "@/components/layout/page-section";
 import { Reveal } from "@/components/ui/reveal";
-import { galleryAtelier } from "@/lib/mock-data/gallery";
+import type { PublicGalleryAtelier } from "@/lib/cms/public-gallery";
 import { site } from "@/lib/mock-data/content";
 
-export function GalleryAtelier() {
+export function GalleryAtelier({ items }: { items: PublicGalleryAtelier[] }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const photos = useMemo(
     () =>
-      galleryAtelier.map((src, index) => ({
-        src,
-        alt: `Gayrettepe atölyesinden kare ${index + 1}`,
-        caption: `Atölye karesi ${index + 1}`,
+      items.map((item, index) => ({
+        src: item.src,
+        alt: item.title || `Gayrettepe atölyesinden kare ${index + 1}`,
+        caption: item.description ? `${item.title} — ${item.description}` : item.title || `Atölye karesi ${index + 1}`,
       })),
-    [],
+    [items],
   );
+
+  if (items.length === 0) return null;
 
   return (
     <PageSection id="atolye-kareleri" tone="light">
@@ -30,22 +32,33 @@ export function GalleryAtelier() {
         </p>
       </Reveal>
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {galleryAtelier.map((src, index) => (
-          <li key={src}>
+        {items.map((item, index) => (
+          <li key={item.id}>
             <Reveal variant="up" delayMs={index * 40}>
               <button
                 type="button"
-                className="relative aspect-square w-full overflow-hidden rounded-xl"
+                className="group relative aspect-square w-full overflow-hidden rounded-xl text-left"
                 onClick={() => setLightbox(index)}
-                aria-label={`Atölye karesi ${index + 1} büyüt`}
+                aria-label={`${item.title} büyüt`}
               >
                 <Image
-                  src={src}
-                  alt={`Gayrettepe atölyesinden kare ${index + 1}`}
+                  src={item.src}
+                  alt={item.title}
                   fill
-                  className="object-cover"
+                  className="object-cover transition duration-500 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                   sizes="(min-width: 640px) 25vw, 50vw"
                 />
+                <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:opacity-100" />
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full p-3 text-left transition-transform duration-300 ease-out group-hover:translate-y-0 group-focus-visible:translate-y-0 motion-reduce:translate-y-0">
+                  <span className="block font-display text-[13px] font-semibold leading-5 text-white sm:text-sm">
+                    {item.title}
+                  </span>
+                  {item.description ? (
+                    <span className="mt-0.5 block line-clamp-2 text-[11px] leading-4 text-white/80 sm:text-[12px]">
+                      {item.description}
+                    </span>
+                  ) : null}
+                </span>
               </button>
             </Reveal>
           </li>

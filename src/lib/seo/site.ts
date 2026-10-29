@@ -13,6 +13,13 @@ export const routeTitles: Record<string, string> = {
   "/ornek-araclar": `Örnek Araçlar | ${siteConfig.name}`,
   "/biz-kimiz": `Biz Kimiz? | ${siteConfig.name}`,
   "/iletisim": `İletişim | ${siteConfig.name}`,
+  "/admin": `Genel bakış | ${siteConfig.name}`,
+  "/admin/login": `Admin Giriş | ${siteConfig.name}`,
+  "/admin/hizmetler": `Hizmetler | ${siteConfig.name}`,
+  "/admin/galeri": `Araç Galerisi | ${siteConfig.name}`,
+  "/admin/sss": `SSS | ${siteConfig.name}`,
+  "/admin/sayfalar": `Sayfa İçerikleri | ${siteConfig.name}`,
+  "/admin/ayarlar": `Site Ayarları | ${siteConfig.name}`,
 };
 
 export function documentTitleForPath(pathname: string): string {

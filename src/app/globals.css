@@ -195,6 +195,21 @@
     outline: none;
   }
 
+  .form-field:disabled,
+  .form-field[readonly] {
+    cursor: default;
+    opacity: 0.78;
+    background: var(--color-surface-container);
+  }
+
+  .form-field:disabled:hover,
+  .form-field[readonly]:hover,
+  .form-field:disabled:focus,
+  .form-field[readonly]:focus {
+    border-color: rgb(255 255 255 / 0.1);
+    box-shadow: none;
+  }
+
   .form-field:-webkit-autofill,
   .form-field:-webkit-autofill:hover,
   .form-field:-webkit-autofill:focus {
@@ -549,6 +564,43 @@
 @keyframes nav-dissolve-in {
   from {
     opacity: 0;
+  }
+}
+
+@keyframes cms-tab-panel {
+  from {
+    opacity: 0;
+    transform: translate3d(12px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cms-tab-panel {
+  animation: cms-tab-panel 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cms-pager-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.cms-pager {
+  animation: cms-pager-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cms-tab-panel,
+  .cms-pager {
+    animation: none;
   }
 }
 

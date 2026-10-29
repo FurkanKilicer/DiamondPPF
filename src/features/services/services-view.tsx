@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ServicesCatalog } from "@/features/services/services-catalog";
 import { ServicesHero } from "@/features/services/services-hero";
-import { ServicesNav } from "@/features/services/services-nav";
 import { ServicesQuote } from "@/features/services/services-quote";
 import {
   brandVehicleValue,
@@ -11,7 +9,7 @@ import {
   serviceBrands,
 } from "@/lib/mock-data/services";
 
-export function ServicesView() {
+export function ServicesView({ children }: { children: React.ReactNode }) {
   const [brandId, setBrandId] = useState<string>(defaultServiceBrand.id);
   const [vehicle, setVehicle] = useState(brandVehicleValue(defaultServiceBrand));
 
@@ -24,8 +22,7 @@ export function ServicesView() {
   return (
     <>
       <ServicesHero brandId={brandId} onBrand={onBrand} />
-      <ServicesNav />
-      <ServicesCatalog />
+      {children}
       <ServicesQuote vehicle={vehicle} onVehicleChange={setVehicle} />
     </>
   );

@@ -1,7 +1,14 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { Icon } from "@/components/ui/icon";
+import {
+  completeQuoteSubmission,
+  quoteServicesInput,
+  quoteSubmitUserMessage,
+  shouldAcceptQuoteSubmit,
+  type QuoteFormUiStatus,
+} from "@/lib/forms/quote-submit";
 import { serviceQuoteOptions } from "@/lib/mock-data/services";
 import { buildQuoteWhatsAppMessage, quoteWhatsAppHref, site } from "@/lib/mock-data/content";
 import { cn } from "@/lib/utils/cn";
@@ -9,21 +16,28 @@ import { cn } from "@/lib/utils/cn";
 const fieldClass = "form-field";
 
 export function ServicesQuoteForm({ vehicle, onVehicleChange }: { vehicle: string; onVehicleChange: (value: string) => void }) {
-  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const [status, setStatus] = useState<QuoteFormUiStatus>("idle");
+  const [formError, setFormError] = useState<string | null>(null);
+  const [sentMessage, setSentMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const busy = useRef(false);
   const [checked, setChecked] = useState<string[]>(
     serviceQuoteOptions.filter((item) => item.checked).map((item) => item.value),
   );
-
-  useEffect(() => {
-    setStatus("idle");
-  }, [vehicle]);
 
   function toggle(value: string) {
     setChecked((prev) => (prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]));
   }
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy.current || !shouldAcceptQuoteSubmit(status)) return;
+    busy.current = true;
+    setStatus("pending");
+    setFormError(null);
+    setSentMessage(null);
+    setFieldErrors({});
+
     const data = new FormData(event.currentTarget);
     const year = String(data.get("year") ?? "");
     const notes = String(data.get("notes") ?? "");
@@ -35,12 +49,30 @@ export function ServicesQuoteForm({ vehicle, onVehicleChange }: { vehicle: strin
       notes: notes || undefined,
       closing: "Fiyat ve müsaitlik durumu hakkında bilgi alabilir miyim?",
     });
-    window.open(quoteWhatsAppHref(message), "_blank", "noopener,noreferrer");
-    setStatus("sent");
+
+    try {
+      const result = await completeQuoteSubmission({
+        input: quoteServicesInput({ vehicle, year, services: checked, notes }),
+        whatsappHref: quoteWhatsAppHref(message),
+        target: window,
+      });
+      if (result.ok || result.error.code !== "VALIDATION_ERROR") {
+        setStatus("sent");
+        setSentMessage(quoteSubmitUserMessage(result));
+        return;
+      }
+      setStatus("error");
+      setFieldErrors(result.error.fields ?? {});
+      setFormError(quoteSubmitUserMessage(result));
+    } finally {
+      busy.current = false;
+    }
   }
 
+  const pending = status === "pending";
+
   return (
-    <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+    <form className="flex flex-col gap-4" onSubmit={onSubmit} aria-busy={pending}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <label className="label-caps text-text-muted" htmlFor="form-vehicle">
@@ -51,16 +83,18 @@ export function ServicesQuoteForm({ vehicle, onVehicleChange }: { vehicle: strin
             name="vehicle"
             required
             value={vehicle}
+            maxLength={120}
             onChange={(event) => onVehicleChange(event.target.value)}
             placeholder="Örn: Tesla Model Y / Porsche Taycan"
             className={fieldClass}
           />
+          {fieldErrors.vehicle ? <p className="text-[12px] text-brand-red">{fieldErrors.vehicle}</p> : null}
         </div>
         <div className="flex flex-col gap-2">
           <label className="label-caps text-text-muted" htmlFor="form-year">
             Model yılı / paket
           </label>
-          <input id="form-year" name="year" placeholder="Örn: 2024 Long Range" className={fieldClass} />
+          <input id="form-year" name="year" maxLength={40} placeholder="Örn: 2024 Long Range" className={fieldClass} />
         </div>
       </div>
       <fieldset className="flex flex-col gap-3">
@@ -124,6 +158,7 @@ export function ServicesQuoteForm({ vehicle, onVehicleChange }: { vehicle: strin
           id="form-note"
           name="notes"
           rows={3}
+          maxLength={2000}
           placeholder="Örn: Ön tamponda hafif taş izleri var, mat saten dönüşüm istiyorum..."
           className={fieldClass}
         />
@@ -131,10 +166,11 @@ export function ServicesQuoteForm({ vehicle, onVehicleChange }: { vehicle: strin
       <div className="flex flex-col items-center gap-3 pt-1 sm:flex-row">
         <button
           type="submit"
-          className="cta-red label-caps inline-flex h-12 w-full flex-1 items-center justify-center gap-2 rounded-xl px-6 tracking-wider"
+          disabled={pending}
+          className="cta-red label-caps inline-flex h-12 w-full flex-1 items-center justify-center gap-2 rounded-xl px-6 tracking-wider disabled:cursor-not-allowed disabled:opacity-70"
         >
           <Icon name="send" className="text-[20px]" />
-          WhatsApp ile hızlı fiyat al
+          {pending ? "Kaydediliyor…" : "WhatsApp ile hızlı fiyat al"}
         </button>
         <a
           href={site.phoneHref}
@@ -144,9 +180,14 @@ export function ServicesQuoteForm({ vehicle, onVehicleChange }: { vehicle: strin
           {site.phoneDisplay}
         </a>
       </div>
-      {status === "sent" ? (
+      {status === "sent" && sentMessage ? (
         <p className="text-sm text-primary-container" role="status">
-          Taslak hazırlandı. Sunucuya kayıt yazılmaz.
+          {sentMessage}
+        </p>
+      ) : null}
+      {formError ? (
+        <p className="text-sm text-brand-red" role="alert">
+          {formError}
         </p>
       ) : null}
     </form>

@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { GalleryAtelier } from "@/features/gallery/gallery-atelier";
-import { GalleryDetails } from "@/features/gallery/gallery-details";
-import { GalleryGrid } from "@/features/gallery/gallery-grid";
-import { GalleryHero } from "@/features/gallery/gallery-hero";
+import { Suspense } from "react";
+import { GalleryPageSkeleton } from "@/features/gallery/gallery-page-skeleton";
 import { GalleryQuote } from "@/features/gallery/gallery-quote";
-import { GalleryVideos } from "@/features/gallery/gallery-videos";
+import { PublishedGallerySection } from "@/features/gallery/published-gallery-section";
 import { VideoModalProvider } from "@/features/home/video-modal";
 
 export const metadata: Metadata = {
@@ -18,11 +16,9 @@ export default function OrnekAraclarPage() {
   return (
     <VideoModalProvider>
       <main className="min-h-screen w-full bg-surface-canvas pt-[4.5rem] md:pt-20">
-        <GalleryHero />
-        <GalleryGrid />
-        <GalleryDetails />
-        <GalleryVideos />
-        <GalleryAtelier />
+        <Suspense fallback={<GalleryPageSkeleton />}>
+          <PublishedGallerySection />
+        </Suspense>
         <GalleryQuote />
       </main>
     </VideoModalProvider>

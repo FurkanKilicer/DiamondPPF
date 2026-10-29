@@ -1,15 +1,13 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { serviceFilters, type ServiceCategoryId } from "@/lib/mock-data/services";
+import type { PublicServiceNavItem } from "@/lib/cms/public-catalog";
 import { cn } from "@/lib/utils/cn";
 
-const categoryIds = serviceFilters.map((item) => item.id);
-
-export function ServicesNav() {
+export function ServicesNav({ items }: { items: PublicServiceNavItem[] }) {
   const rowRef = useRef<HTMLDivElement>(null);
   const lockRef = useRef(false);
-  const [active, setActive] = useState<ServiceCategoryId>("koruma");
+  const [active, setActive] = useState(items[0]?.id ?? "");
   const [pill, setPill] = useState({ left: 0, width: 0, ready: false });
 
   useLayoutEffect(() => {
@@ -26,8 +24,9 @@ export function ServicesNav() {
     function sync() {
       if (lockRef.current) return;
       const line = 128;
-      let current: ServiceCategoryId = categoryIds[0];
-      for (const id of categoryIds) {
+      let current = items[0]?.id ?? "";
+      for (const item of items) {
+        const id = item.id;
         const node = document.getElementById(id);
         if (!node) continue;
         if (node.getBoundingClientRect().top <= line) current = id;
@@ -51,9 +50,13 @@ export function ServicesNav() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
-  }, []);
+  }, [items]);
 
-  function go(id: ServiceCategoryId) {
+  if (items.length === 0) {
+    return null;
+  }
+
+  function go(id: PublicServiceNavItem["id"]) {
     const target = document.getElementById(id);
     if (!target) return;
     lockRef.current = true;
@@ -75,11 +78,13 @@ export function ServicesNav() {
                   aria-hidden
                   className={cn(
                     "pointer-events-none absolute top-0 left-0 z-0 h-full rounded-full border border-primary-container/60 bg-surface-elevated",
-                    pill.ready ? "transition-[transform,width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]" : "opacity-0",
+                    pill.ready
+                      ? "transition-[transform,width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none"
+                      : "opacity-0",
                   )}
                   style={{ width: pill.width, transform: `translateX(${pill.left}px)` }}
                 />
-                {serviceFilters.map((item) => {
+                {items.map((item) => {
                   const selected = active === item.id;
                   return (
                     <button

@@ -21,6 +21,8 @@ export const site = {
   studioLine: "Gayrettepe, Beşiktaş · İstanbul",
   workshopLabel: "Gayrettepe Atölyesi",
   mapsHref: "https://share.google/SNKlxZpWBwBQa6bcW",
+  mapsReviewsHref:
+    "https://www.google.com/maps/place/Diamond+PPF+Turkey/@41.0589473,29.0046893,17z/data=!4m8!3m7!1s0x14cab73a3d21f589:0x7cfb654057f4bfc!8m2!3d41.0589473!4d29.0046893!9m1!1b1!16s%2Fg%2F11w7_qjsdt?entry=ttu",
   mapsEmbedSrc: `https://maps.google.com/maps?q=${encodeURIComponent(mapsPlaceQuery)}&z=17&hl=tr&output=embed`,
   hoursLine: "Her gün 10:00 – 22:00",
   hoursNote: "Resmi tatillerde saatler değişebilir.",

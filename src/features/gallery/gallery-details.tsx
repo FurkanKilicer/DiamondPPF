@@ -5,19 +5,21 @@ import { useMemo, useState } from "react";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { PageSection, SectionKicker } from "@/components/layout/page-section";
 import { Reveal } from "@/components/ui/reveal";
-import { galleryDetails } from "@/lib/mock-data/gallery";
+import type { PublicGalleryDetail } from "@/lib/cms/public-gallery";
 
-export function GalleryDetails() {
+export function GalleryDetails({ items }: { items: PublicGalleryDetail[] }) {
   const [lightbox, setLightbox] = useState<number | null>(null);
   const photos = useMemo(
     () =>
-      galleryDetails.map((item) => ({
+      items.map((item) => ({
         src: item.src,
         alt: item.title,
         caption: `${item.title} · ${item.note}`,
       })),
-    [],
+    [items],
   );
+
+  if (items.length === 0) return null;
 
   return (
     <PageSection id="mikron-detay" tone="light">
@@ -31,8 +33,8 @@ export function GalleryDetails() {
         </p>
       </Reveal>
       <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {galleryDetails.map((item, index) => (
-          <li key={item.title}>
+        {items.map((item, index) => (
+          <li key={item.id}>
             <Reveal variant="up" delayMs={index * 70}>
               <article className="card-light overflow-hidden rounded-2xl">
                 <button

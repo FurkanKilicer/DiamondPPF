@@ -65,7 +65,7 @@ export function AboutQuote() {
           </div>
         </Reveal>
         <Reveal variant="right" className="lg:col-span-7">
-          <QuoteForm heading="none" />
+          <QuoteForm heading="none" source="home" />
         </Reveal>
       </div>
     </PageSection>

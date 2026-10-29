@@ -2,10 +2,10 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import { PageSection } from "@/components/layout/page-section";
 import { Reveal } from "@/components/ui/reveal";
-import { galleryStats } from "@/lib/mock-data/gallery";
+import { galleryHeroStats } from "@/lib/cms/public-gallery";
 import { site } from "@/lib/mock-data/content";
 
-export function GalleryHero() {
+export function GalleryHero({ archiveCount }: { archiveCount: number }) {
   return (
     <div className="relative w-full overflow-hidden">
       <div
@@ -58,7 +58,7 @@ export function GalleryHero() {
             </div>
           </Reveal>
           <Reveal variant="right" className="grid grid-cols-2 gap-4 lg:col-span-4">
-            {galleryStats.map((item) => (
+            {galleryHeroStats(archiveCount).map((item) => (
               <div key={item.label} className="rounded-xl border border-border-subtle bg-surface-card p-4">
                 <Icon name={item.icon} className="text-[22px] text-brand-red" />
                 <p className="mt-3 font-display text-xl font-bold">{item.value}</p>

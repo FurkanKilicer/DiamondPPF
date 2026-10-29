@@ -7,27 +7,17 @@ import { Icon } from "@/components/ui/icon";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { PageSection, SectionKicker } from "@/components/layout/page-section";
 import { Reveal } from "@/components/ui/reveal";
-import {
-  galleryFilters,
-  galleryVehicles,
-  galleryWhatsAppHref,
-  type GalleryBrand,
-} from "@/lib/mock-data/gallery";
+import { matchGalleryFilter, publicGalleryFilters, type PublicGalleryCard, type PublicGalleryFilter } from "@/lib/cms/public-gallery";
+import { galleryWhatsAppHref } from "@/lib/mock-data/gallery";
 
-type Filter = (typeof galleryFilters)[number];
-
-function matches(filter: Filter, brand: GalleryBrand, itemFilter: string) {
-  if (filter === "Tümü") return true;
-  if (filter === "Mercedes-AMG") return itemFilter === "Mercedes-AMG" || brand === "Mercedes";
-  return itemFilter === filter || brand === filter;
-}
-
-export function GalleryGrid() {
-  const [filter, setFilter] = useState<Filter>("Tümü");
+export function GalleryGrid({ cards }: { cards: PublicGalleryCard[] }) {
+  const filters = useMemo(() => publicGalleryFilters(cards), [cards]);
+  const [filter, setFilter] = useState<PublicGalleryFilter>("Tümü");
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const activeFilter = filters.includes(filter) ? filter : "Tümü";
   const items = useMemo(
-    () => galleryVehicles.filter((item) => matches(filter, item.brand, item.filter)),
-    [filter],
+    () => cards.filter((item) => matchGalleryFilter(activeFilter, item)),
+    [activeFilter, cards],
   );
   const photos = useMemo(
     () =>
@@ -50,15 +40,13 @@ export function GalleryGrid() {
       </div>
       <div className="mb-8">
         <ChipSlider
-          items={galleryFilters}
-          value={filter}
+          items={filters}
+          value={activeFilter}
           onChange={setFilter}
           tone="dark"
           label={(item) => {
             const count =
-              item === "Tümü"
-                ? galleryVehicles.length
-                : galleryVehicles.filter((vehicle) => matches(item, vehicle.brand, vehicle.filter)).length;
+              item === "Tümü" ? cards.length : cards.filter((vehicle) => matchGalleryFilter(item, vehicle)).length;
             return `${item} (${count})`;
           }}
         />

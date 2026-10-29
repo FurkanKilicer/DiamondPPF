@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import localFont from "next/font/local";
 import { DocumentTitleSync } from "@/components/layout/document-title-sync";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SiteHeader } from "@/components/layout/site-header";
+import { ViewTransitionGuard } from "@/components/layout/view-transition-guard";
 import { siteConfig } from "@/lib/seo/site";
 import "./globals.css";
 
@@ -47,9 +46,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="tr" className={`${archivo.variable} ${materialSymbols.variable}`}>
       <body className="min-h-screen antialiased selection:bg-primary-container selection:text-on-primary">
         <DocumentTitleSync />
-        <SiteHeader />
+        <ViewTransitionGuard />
         {children}
-        <SiteFooter />
       </body>
     </html>
   );

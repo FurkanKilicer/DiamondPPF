@@ -46,7 +46,7 @@ export const contactChannels = [
     title: "Harita & yorumlar",
     highlight: `${site.rating} ★ · ${site.reviewCount} inceleme`,
     body: "Gayrettepe atölyemizi haritada açın, müşteri yorumlarını inceleyin.",
-    href: site.mapsHref,
+    href: site.mapsReviewsHref,
     external: true,
     action: "Google’da aç",
     icon: "star",
