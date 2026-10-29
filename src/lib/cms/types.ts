@@ -51,6 +51,7 @@ export type CmsGalleryItem = {
   title: string;
   description: string;
   imagePath: string;
+  previewSrc?: string;
   kind: CmsGalleryKind;
   published: boolean;
   sortOrder: number;

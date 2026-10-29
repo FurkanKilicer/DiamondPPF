@@ -24,8 +24,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ pat
     headers: {
       "Content-Type": contentType,
       "Cache-Control": objectPath.startsWith("published/")
-        ? "public, max-age=86400, immutable"
-        : "private, no-store",
+        ? "public, max-age=86400, s-maxage=86400, immutable"
+        : "private, max-age=120",
     },
   });
 }

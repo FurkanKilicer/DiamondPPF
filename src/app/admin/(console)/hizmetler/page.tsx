@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdminPageSuspense } from "@/features/admin/admin-page-suspense";
 import { AdminServicesScreen } from "@/features/admin/admin-services-screen";
 import { requireAdminAuth } from "@/lib/auth/get-admin-auth";
 import { listCmsServices } from "@/lib/cms/queries";
@@ -8,9 +9,19 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export const instant = false;
+export default function AdminServicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string; tab?: string; page?: string; size?: string; edit?: string }>;
+}) {
+  return (
+    <AdminPageSuspense>
+      <AdminServicesBody searchParams={searchParams} />
+    </AdminPageSuspense>
+  );
+}
 
-export default async function AdminServicesPage({
+async function AdminServicesBody({
   searchParams,
 }: {
   searchParams: Promise<{ notice?: string; tab?: string; page?: string; size?: string; edit?: string }>;

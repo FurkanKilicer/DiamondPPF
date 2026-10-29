@@ -3,7 +3,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createPublicSupabaseClient } from "@/lib/supabase/public-server";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { isCmsGalleryKind } from "@/lib/cms/gallery-kind";
+import { isCmsGalleryKind, type CmsGalleryKind } from "@/lib/cms/gallery-kind";
+import { CMS_MEDIA_BUCKET, isSafeCmsMediaPath } from "@/lib/cms/media-path";
 import type {
   CmsCountPair,
   CmsFaqItem,
@@ -32,9 +33,11 @@ function isCountError(value: CmsCountPair | CmsListError): value is CmsListError
 async function countPair(table: string): Promise<CmsCountPair | CmsListError> {
   if (!isSupabaseConfigured()) return notConfigured();
   const admin = getSupabaseAdmin();
-  const totalRes = await admin.from(table).select("*", { count: "exact", head: true });
+  const [totalRes, publishedRes] = await Promise.all([
+    admin.from(table).select("*", { count: "exact", head: true }),
+    admin.from(table).select("*", { count: "exact", head: true }).eq("published", true),
+  ]);
   if (totalRes.error) return fromError(totalRes.error);
-  const publishedRes = await admin.from(table).select("*", { count: "exact", head: true }).eq("published", true);
   if (publishedRes.error) return fromError(publishedRes.error);
   return { total: totalRes.count ?? 0, published: publishedRes.count ?? 0 };
 }
@@ -164,10 +167,11 @@ function asGalleryRow(row: unknown): CmsGalleryItem | null {
 
 export async function queryCmsGallery(
   client: SupabaseClient,
-  options: { publishedOnly: boolean },
+  options: { publishedOnly: boolean; kind?: CmsGalleryKind },
 ): Promise<CmsListOk<CmsGalleryItem> | CmsListError> {
   const base = client.from("cms_gallery").select(CMS_GALLERY_COLUMNS);
-  const filtered = options.publishedOnly ? base.eq("published", true) : base;
+  const published = options.publishedOnly ? base.eq("published", true) : base;
+  const filtered = options.kind ? published.eq("kind", options.kind) : published;
   const { data, error } = await filtered
     .order("kind", { ascending: true })
     .order("sort_order", { ascending: true })
@@ -181,9 +185,47 @@ export async function queryCmsGallery(
   return { ok: true, items };
 }
 
-export async function listCmsGallery(): Promise<CmsListOk<CmsGalleryItem> | CmsListError> {
+async function attachGalleryPreviews(items: CmsGalleryItem[]): Promise<CmsGalleryItem[]> {
+  const paths = [...new Set(items.map((item) => item.imagePath).filter((path) => isSafeCmsMediaPath(path)))];
+  if (paths.length === 0) return items;
+  try {
+    const admin = getSupabaseAdmin();
+    const { data } = await admin.storage.from(CMS_MEDIA_BUCKET).createSignedUrls(paths, 3600);
+    if (!data) return items;
+    const signed = new Map<string, string>();
+    paths.forEach((path, index) => {
+      const row = data[index];
+      if (row?.signedUrl && !row.error) signed.set(path, row.signedUrl);
+    });
+    return items.map((item) => {
+      const previewSrc = signed.get(item.imagePath);
+      return previewSrc ? { ...item, previewSrc } : item;
+    });
+  } catch {
+    return items;
+  }
+}
+
+export async function countCmsGalleryKinds(): Promise<Record<CmsGalleryKind, number>> {
+  const empty: Record<CmsGalleryKind, number> = { vehicle: 0, detail: 0, video: 0, atelier: 0 };
+  if (!isSupabaseConfigured()) return empty;
+  const admin = getSupabaseAdmin();
+  const { data, error } = await admin.from("cms_gallery").select("kind").limit(500);
+  if (error || !data) return empty;
+  const counts = { ...empty };
+  for (const row of data) {
+    if (row && typeof row === "object" && "kind" in row && typeof row.kind === "string" && isCmsGalleryKind(row.kind)) {
+      counts[row.kind] += 1;
+    }
+  }
+  return counts;
+}
+
+export async function listCmsGallery(options?: { kind?: CmsGalleryKind }): Promise<CmsListOk<CmsGalleryItem> | CmsListError> {
   if (!isSupabaseConfigured()) return notConfigured();
-  return queryCmsGallery(getSupabaseAdmin(), { publishedOnly: false });
+  const result = await queryCmsGallery(getSupabaseAdmin(), { publishedOnly: false, kind: options?.kind });
+  if (!result.ok) return result;
+  return { ok: true, items: await attachGalleryPreviews(result.items) };
 }
 
 export const listPublishedCmsGallery = cache(async (): Promise<CmsListOk<CmsGalleryItem> | CmsListError> => {

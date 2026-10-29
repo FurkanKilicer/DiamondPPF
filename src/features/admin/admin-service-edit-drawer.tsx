@@ -9,17 +9,25 @@ import type { CmsServiceItem } from "@/lib/cms/types";
 
 export function AdminServiceEditDrawer({
   service,
-  initialOpen = false,
+  open: openProp,
   hideTrigger = false,
+  onClose,
+  initialOpen = false,
 }: {
   service: CmsServiceItem;
-  initialOpen?: boolean;
+  open?: boolean;
   hideTrigger?: boolean;
+  onClose?: () => void;
+  initialOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(initialOpen);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(initialOpen);
+  const open = openProp ?? uncontrolledOpen;
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
-  const close = useCallback(() => setOpen(false), []);
+  const close = useCallback(() => {
+    onClose?.();
+    if (openProp === undefined) setUncontrolledOpen(false);
+  }, [onClose, openProp]);
 
   useEffect(() => {
     if (!open) return;
@@ -34,7 +42,7 @@ export function AdminServiceEditDrawer({
           type="button"
           title="Düzenle"
           aria-label={`${service.title} kaydını düzenle`}
-          onClick={() => setOpen(true)}
+          onClick={() => setUncontrolledOpen(true)}
           className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-surface-container text-brand-cyan hover:bg-white/8"
         >
           <Icon name="edit" className="text-[18px]" />
@@ -62,7 +70,7 @@ export function AdminServiceEditDrawer({
             </div>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-            <AdminServiceForm mode="edit" service={service} embedded onCancel={close} />
+            <AdminServiceForm key={service.id} mode="edit" service={service} embedded onCancel={close} />
           </div>
         </div>
       </AdminOverlay>

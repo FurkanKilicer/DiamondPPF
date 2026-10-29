@@ -1,11 +1,18 @@
 import { notFound, redirect } from "next/navigation";
+import { AdminPageSuspense } from "@/features/admin/admin-page-suspense";
 import { requireAdminAuth } from "@/lib/auth/get-admin-auth";
 import { getCmsServiceById } from "@/lib/cms/queries";
 import { isCmsServiceId } from "@/lib/cms/service-input";
 
-export const instant = false;
+export default function AdminEditServicePage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <AdminPageSuspense>
+      <AdminEditServiceBody params={params} />
+    </AdminPageSuspense>
+  );
+}
 
-export default async function AdminEditServicePage({ params }: { params: Promise<{ id: string }> }) {
+async function AdminEditServiceBody({ params }: { params: Promise<{ id: string }> }) {
   const state = await requireAdminAuth();
   if (!state) return null;
 

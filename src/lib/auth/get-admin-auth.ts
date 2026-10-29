@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { connection } from "next/server";
 import { logAdminLookupFailure } from "@/lib/auth/admin-access";
 import type { AdminMembershipResolution } from "@/lib/auth/admin-membership";
@@ -22,20 +23,28 @@ export async function requireAdminAuth(): Promise<Extract<AdminAuthState, { stat
   return state.status === "ok" ? state : null;
 }
 
+const lookupAdminProfileCached = unstable_cache(
+  async (userId: string): Promise<AdminMembershipResolution> => lookupAdminProfileWithServiceRole(userId),
+  ["admin-profile-membership"],
+  { revalidate: 60 },
+);
+
 export const getAdminAuthState = cache(async (): Promise<AdminAuthState> => {
   await connection();
   const supabase = await createUserSupabaseClient();
   if (!supabase) return { status: "unauthenticated" };
 
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return { status: "unauthenticated" };
+  const { data, error } = await supabase.auth.getClaims();
+  const claims = data?.claims;
+  const sub = typeof claims?.sub === "string" ? claims.sub : null;
+  if (error || !sub) return { status: "unauthenticated" };
 
   const user: AdminUser = {
-    id: data.user.id,
-    email: data.user.email ?? null,
+    id: sub,
+    email: typeof claims.email === "string" ? claims.email : null,
   };
 
-  const membership = await lookupAdminProfileWithServiceRole(data.user.id);
+  const membership = await lookupAdminProfileCached(sub);
   if (!membership.determined) {
     return { status: "check_failed", user };
   }

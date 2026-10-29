@@ -1,11 +1,18 @@
 import { notFound, redirect } from "next/navigation";
+import { AdminPageSuspense } from "@/features/admin/admin-page-suspense";
 import { requireAdminAuth } from "@/lib/auth/get-admin-auth";
 import { isCmsGalleryId } from "@/lib/cms/gallery-input";
 import { getCmsGalleryById } from "@/lib/cms/queries";
 
-export const instant = false;
+export default function AdminEditGalleryPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <AdminPageSuspense>
+      <AdminEditGalleryBody params={params} />
+    </AdminPageSuspense>
+  );
+}
 
-export default async function AdminEditGalleryPage({ params }: { params: Promise<{ id: string }> }) {
+async function AdminEditGalleryBody({ params }: { params: Promise<{ id: string }> }) {
   const state = await requireAdminAuth();
   if (!state) return null;
 

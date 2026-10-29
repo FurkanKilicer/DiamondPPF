@@ -50,6 +50,9 @@ export function AdminServicesBoard({
   const tabRowRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState(() => parseServiceListTab(tabParam));
   const [pill, setPill] = useState({ left: 0, width: 0, ready: false });
+  const [editing, setEditing] = useState<CmsServiceItem | null>(
+    () => (editId ? items.find((item) => item.id === editId) ?? null : null),
+  );
   const flash = cmsServiceNoticeMessage(notice);
 
   useEffect(() => {
@@ -59,13 +62,17 @@ export function AdminServicesBoard({
   useEffect(() => {
     setTab(parseServiceListTab(tabParam));
   }, [tabParam]);
+
+  useEffect(() => {
+    if (!editId) return;
+    const match = items.find((item) => item.id === editId);
+    if (match) setEditing(match);
+  }, [editId, items]);
   const pageSize = parseServicePageSize(sizeParam);
   const filtered = useMemo(() => filterServicesByTab(ordered, tab), [ordered, tab]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const page = parseServicePage(pageParam, pageCount);
   const paged = paginateItems(filtered, page, pageSize);
-  const editItem = editId ? items.find((item) => item.id === editId) : undefined;
-  const editOnPage = Boolean(editItem && paged.slice.some((item) => item.id === editItem.id));
 
   const tabCounts = useMemo(() => {
     const counts = new Map<ServiceListTab, number>();
@@ -201,15 +208,15 @@ export function AdminServicesBoard({
         />
       ) : (
           <div className="overflow-x-auto rounded-2xl border border-white/8 bg-surface-card">
-            <table className="min-w-full text-left text-[14px]">
-              <thead className="label-caps border-b border-white/8 text-text-muted">
+            <table className="w-full table-fixed text-left text-[12px] leading-5">
+              <thead className="label-caps border-b border-white/8 text-[10px] text-text-muted">
                 <tr>
-                  <th className="px-4 py-3 font-medium">Sıra</th>
-                  <th className="px-4 py-3 font-medium">Başlık</th>
-                  <th className="hidden px-4 py-3 font-medium md:table-cell">Özet</th>
-                  <th className="px-4 py-3 font-medium">Durum</th>
-                  <th className="hidden px-4 py-3 font-medium lg:table-cell">Güncelleme</th>
-                  <th className="px-4 py-3 font-medium">
+                  <th className="w-24 px-3 py-2.5 font-medium">Sıra</th>
+                  <th className="w-[22%] px-3 py-2.5 font-medium">Başlık</th>
+                  <th className="hidden px-3 py-2.5 font-medium md:table-cell">Özet</th>
+                  <th className="w-[7.5rem] px-3 py-2.5 font-medium">Durum</th>
+                  <th className="hidden w-[9.5rem] px-3 py-2.5 font-medium lg:table-cell">Güncelleme</th>
+                  <th className="w-[6.5rem] px-3 py-2.5 font-medium">
                     <span className="sr-only">İşlemler</span>
                   </th>
                 </tr>
@@ -226,8 +233,8 @@ export function AdminServicesBoard({
                       pending && "opacity-70",
                     )}
                   >
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-1.5">
                         <button
                           type="button"
                           draggable
@@ -241,17 +248,29 @@ export function AdminServicesBoard({
                         <span className="tabular-nums text-text-muted">{item.sortOrder}</span>
                       </div>
                     </td>
-                    <td className="max-w-[12rem] px-4 py-3 font-display font-semibold break-words sm:max-w-none">{item.title}</td>
-                    <td className="hidden max-w-md px-4 py-3 text-text-secondary md:table-cell">
+                    <td className="px-3 py-2 font-display text-[13px] font-semibold">
+                      <span className="line-clamp-2 break-words">{item.title}</span>
+                    </td>
+                    <td className="hidden px-3 py-2 text-text-secondary md:table-cell">
                       <span className="line-clamp-2">{item.description}</span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="whitespace-nowrap px-3 py-2">
                       <AdminStatusBadge published={item.published} />
                     </td>
-                    <td className="hidden px-4 py-3 text-text-muted lg:table-cell">{formatCmsDate(item.updatedAt)}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap items-center justify-end gap-1">
-                        <AdminServiceEditDrawer service={item} initialOpen={editId === item.id} />
+                    <td className="hidden whitespace-nowrap px-3 py-2 text-[11px] text-text-muted lg:table-cell">
+                      {formatCmsDate(item.updatedAt)}
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          title="Düzenle"
+                          aria-label={`${item.title} kaydını düzenle`}
+                          onClick={() => setEditing(item)}
+                          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-surface-container text-brand-cyan hover:bg-white/8"
+                        >
+                          <Icon name="edit" className="text-[18px]" />
+                        </button>
                         <AdminServiceDelete service={item} />
                       </div>
                     </td>
@@ -333,7 +352,9 @@ export function AdminServicesBoard({
           </div>
         </>
       ) : null}
-      {editItem && !editOnPage ? <AdminServiceEditDrawer service={editItem} initialOpen hideTrigger /> : null}
+      {editing ? (
+        <AdminServiceEditDrawer key={editing.id} service={editing} open hideTrigger onClose={() => setEditing(null)} />
+      ) : null}
     </div>
   );
 }

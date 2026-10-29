@@ -6,8 +6,6 @@ import { AdminPageSkeleton } from "@/features/admin/admin-page-skeleton";
 import { AdminAccountPreview, AdminShell } from "@/features/admin/admin-shell";
 import { getAdminAuthState } from "@/lib/auth/get-admin-auth";
 
-export const instant = false;
-
 async function AdminAccountFromAuth() {
   const state = await getAdminAuthState();
   const email = state.status === "unauthenticated" ? null : state.user.email;

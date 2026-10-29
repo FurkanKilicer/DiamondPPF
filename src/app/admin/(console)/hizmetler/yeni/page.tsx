@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { AdminPageSuspense } from "@/features/admin/admin-page-suspense";
 import { requireAdminAuth } from "@/lib/auth/get-admin-auth";
 
 export const metadata: Metadata = {
@@ -7,9 +8,15 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export const instant = false;
+export default function AdminNewServicePage() {
+  return (
+    <AdminPageSuspense>
+      <AdminNewServiceBody />
+    </AdminPageSuspense>
+  );
+}
 
-export default async function AdminNewServicePage() {
+async function AdminNewServiceBody() {
   const state = await requireAdminAuth();
   if (!state) return null;
   redirect("/admin/hizmetler");

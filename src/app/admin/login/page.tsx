@@ -14,7 +14,6 @@ export const metadata: Metadata = {
   alternates: { canonical: "/admin/login" },
 };
 
-export const instant = false;
 
 async function AdminLoginGate() {
   const state = await getAdminAuthState();

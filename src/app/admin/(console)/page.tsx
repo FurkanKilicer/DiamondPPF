@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminOverview } from "@/features/admin/admin-overview";
+import { AdminPageSuspense } from "@/features/admin/admin-page-suspense";
 import { requireAdminAuth } from "@/lib/auth/get-admin-auth";
 import { getCmsSummary } from "@/lib/cms/queries";
 
@@ -9,9 +10,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "/admin" },
 };
 
-export const instant = false;
+export default function AdminOverviewPage() {
+  return (
+    <AdminPageSuspense>
+      <AdminOverviewBody />
+    </AdminPageSuspense>
+  );
+}
 
-export default async function AdminOverviewPage() {
+async function AdminOverviewBody() {
   const state = await requireAdminAuth();
   if (!state) return null;
   const summary = await getCmsSummary();
