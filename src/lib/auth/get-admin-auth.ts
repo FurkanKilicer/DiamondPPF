@@ -37,7 +37,7 @@ export const getAdminAuthState = cache(async (): Promise<AdminAuthState> => {
   const { data, error } = await supabase.auth.getClaims();
   const claims = data?.claims;
   const sub = typeof claims?.sub === "string" ? claims.sub : null;
-  if (error || !sub) return { status: "unauthenticated" };
+  if (error || !claims || !sub) return { status: "unauthenticated" };
 
   const user: AdminUser = {
     id: sub,
