@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import localFont from "next/font/local";
+import { Suspense } from "react";
 import { DocumentTitleSync } from "@/components/layout/document-title-sync";
 import { ViewTransitionGuard } from "@/components/layout/view-transition-guard";
 import { siteConfig } from "@/lib/seo/site";
@@ -45,7 +46,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="tr" className={`${archivo.variable} ${materialSymbols.variable}`}>
       <body className="min-h-screen antialiased selection:bg-primary-container selection:text-on-primary">
-        <DocumentTitleSync />
+        <Suspense fallback={null}>
+          <DocumentTitleSync />
+        </Suspense>
         <ViewTransitionGuard />
         {children}
       </body>

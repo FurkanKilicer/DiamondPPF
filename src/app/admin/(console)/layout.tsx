@@ -28,18 +28,20 @@ async function AdminConsoleGate({ children }: { children: React.ReactNode }) {
 
 export default function AdminConsoleLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AdminShell
-      account={
-        <Suspense fallback={<AdminAccountPreview email={null} />}>
-          <AdminAccountFromAuth />
+    <Suspense fallback={<AdminPageSkeleton />}>
+      <AdminShell
+        account={
+          <Suspense fallback={<AdminAccountPreview email={null} />}>
+            <AdminAccountFromAuth />
+          </Suspense>
+        }
+      >
+        <Suspense fallback={<AdminPageSkeleton />}>
+          <AdminConsoleGate>
+            <Suspense fallback={<AdminPageSkeleton />}>{children}</Suspense>
+          </AdminConsoleGate>
         </Suspense>
-      }
-    >
-      <Suspense fallback={<AdminPageSkeleton />}>
-        <AdminConsoleGate>
-          <Suspense fallback={<AdminPageSkeleton />}>{children}</Suspense>
-        </AdminConsoleGate>
-      </Suspense>
-    </AdminShell>
+      </AdminShell>
+    </Suspense>
   );
 }
